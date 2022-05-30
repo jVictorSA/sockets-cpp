@@ -3,11 +3,11 @@
 //#include <string.h>
 #include <iostream>
 
-/* Necessário para conectar as respectivas libs (bibliotecas), MAS NÃO FUNCIONOU
-#pragma comment(lib, "Ms2_32.lib")
-#pragma comment(lib, "Mswsock.lib")
-#pragma comment(lib, "AdvApi32.lib")
-*/
+/* Necessário para conectar as respectivas libs (bibliotecas), MAS NÃO FUNCIONOU*/
+#pragma comment (lib, "Ms2_32.lib")
+#pragma comment (lib, "Mswsock.lib")
+#pragma comment (lib, "AdvApi32.lib")
+
 
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27015"
@@ -23,12 +23,11 @@ int __cdecl main(int argc, char **argv){
                     *ptr = NULL,
                     hints;
 
-    char buffer_recebido[DEFAULT_BUFLEN];
     cout << "Digite uma mensagem:" << endl;
-    char buffer_enviado[DEFAULT_BUFLEN];
-    cin.getline(buffer_enviado, DEFAULT_BUFLEN);
+    char buffer_nome[DEFAULT_BUFLEN];
+    cin.getline(buffer_nome, DEFAULT_BUFLEN);
     cin.ignore();
-    cout << "Buffer de envio: "<<buffer_enviado<<endl;
+    //cout << "Buffer de envio: "<<buffer_nome<<endl;
 
     int resultado;
     int tamanho_buffer_rec = DEFAULT_BUFLEN;
@@ -87,10 +86,10 @@ int __cdecl main(int argc, char **argv){
     freeaddrinfo(result);
 
     // Enviando mensagem do buffer digitado inicialmente
-    const char *mensagem = buffer_enviado;
+    const char *inicial_mensagem = buffer_nome;
     resultado = send(ConnectSocket,
-     mensagem,
-     (int)strlen(buffer_enviado), //PODE SER NECESSÁRIA A LIB string.h, SE NÃO A FUNÇÃO DEVE ESTA EM OUTROS CABEALHOS JÁ DEFINIDOS
+     inicial_mensagem,
+     (int)strlen(inicial_mensagem), //PODE SER NECESSÁRIA A LIB string.h, SE NÃO A FUNÇÃO DEVE ESTA EM OUTROS CABEALHOS JÁ DEFINIDOS
      0);
     if (resultado == SOCKET_ERROR){
         cout << "Envio falhado com erro: " << WSAGetLastError() << endl;
@@ -112,7 +111,7 @@ int __cdecl main(int argc, char **argv){
     // Receber informações até a conexão ser encerrada
     // NÃO ENTENDI BEM ISSO
     do {
-        resultado = recv(ConnectSocket, buffer_recebido, tamanho_buffer_rec, 0);
+        resultado = recv(ConnectSocket, inicial_mensagem, tamanho_buffer_rec, 0);
         if (resultado>0){
             cout << "Bytes recebidos: "<< resultado<<endl;
         }
