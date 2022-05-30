@@ -10,5 +10,5 @@ Para compilar use o cliente:
 ```
 g++ cliente.cpp -lWs2_32 -o cliente.exe -Wall
 ```
-Para executar o cliente no terminal:
-./cliente.exe
+Para executar o cliente no terminal digite no mesmo:
+start cliente.exe

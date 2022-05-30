@@ -14,7 +14,7 @@
 
 using namespace std;
 
-int main(int argc, char **argv){
+int __cdecl main(int argc, char **argv){
     WSADATA wsa_data;
     SOCKET ConnectSocket = INVALID_SOCKET;
 
@@ -49,8 +49,8 @@ int main(int argc, char **argv){
     //ISSO QUE ENVOLVE ESTA STRUCT DEVE SER APROFUNDADO MAIS
     ZeroMemory( &hints, sizeof(hints) );
     hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
+    hints.ai_socktype = SOCK_STREAM; // Especifica um socket de fluxo
+    hints.ai_protocol = IPPROTO_TCP; // Especifica o protocolo tcp
 
     //Inicializando endereço do servidor junto com a porta
     resultado = getaddrinfo(argv[1], DEFAULT_PORT, &hints, &result);
