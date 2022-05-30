@@ -23,7 +23,7 @@ int __cdecl main(int argc, char **argv){
                     *ptr = NULL,
                     hints;
 
-    cout << "Digite uma mensagem:" << endl;
+    cout << "Digite o nome do seu usuário:" << endl;
     char buffer_nome[DEFAULT_BUFLEN];
     cin.getline(buffer_nome, DEFAULT_BUFLEN);
     cin.ignore();
@@ -86,7 +86,7 @@ int __cdecl main(int argc, char **argv){
     freeaddrinfo(result);
 
     // Enviando mensagem do buffer digitado inicialmente
-    const char *inicial_mensagem = buffer_nome;
+    char *inicial_mensagem = buffer_nome;
     resultado = send(ConnectSocket,
      inicial_mensagem,
      (int)strlen(inicial_mensagem), //PODE SER NECESSÁRIA A LIB string.h, SE NÃO A FUNÇÃO DEVE ESTA EM OUTROS CABEALHOS JÁ DEFINIDOS
@@ -109,11 +109,11 @@ int __cdecl main(int argc, char **argv){
     }
 
     // Receber informações até a conexão ser encerrada
-    // NÃO ENTENDI BEM ISSO
     do {
-        resultado = recv(ConnectSocket, inicial_mensagem, tamanho_buffer_rec, 0);
+        char mensagem_serv[DEFAULT_BUFLEN];
+        resultado = recv(ConnectSocket, mensagem_serv, tamanho_buffer_rec, 0);
         if (resultado>0){
-            cout << "Bytes recebidos: "<< resultado<<endl;
+            cout << "Bytes recebidos: "<< mensagem_serv<<endl;
         }
         else if (resultado==0){
             cout << "Conexão fechada."<<endl;
