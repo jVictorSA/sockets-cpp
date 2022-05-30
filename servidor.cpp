@@ -75,11 +75,12 @@ int main() {
     }
     
     //5-Aceitar a conexão de um cliente.
+    //TALVEZ ESTA PARTE TENHA QUE SER MOVIDA COMLETAMENTE PARA O LOOP. TALVEZ N PQ O COMANDO PARA NO ACCEPT?
     SOCKET cliente;
 
     cliente = INVALID_SOCKET;
 
-    cliente = accept(listenSocket, NULL, NULL);
+    cliente = accept(listenSocket, NULL, NULL); 
     if(cliente == INVALID_SOCKET){
         cout << "falha no aceite da conexao: " << WSAGetLastError() << "\n";
         closesocket(listenSocket);
