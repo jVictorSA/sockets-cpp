@@ -2,8 +2,9 @@
 #include <ws2tcpip.h>
 //#include <string.h>
 #include <iostream>
+#include <thread>
 
-/* Necessário para conectar as respectivas libs (bibliotecas), MAS NÃO FUNCIONOU*/
+/* Necessário para conectar as respectivas libs (bibliotecas)*/
 #pragma comment (lib, "Ms2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
