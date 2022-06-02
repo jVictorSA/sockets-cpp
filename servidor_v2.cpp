@@ -142,13 +142,11 @@ int task1() {
 
 int main(){
     thread first(task1);
-    thread second(task1);
 
     //Alguns códigos podem ser introduzidos na intermedio
     cout << "Em processo principal..."<<endl;
 
     first.join();
-    second.join();
 
     return 0;
 }
