@@ -128,13 +128,13 @@ int __cdecl main(int argc, char **argv){
         cout << "Bytes enviados: "<<resultado<<endl;
 
         //Desligando conexões após a mensagem inicial ser inserida
-        resultado = shutdown(ConnectSocket, SD_SEND);
+        /*resultado = shutdown(ConnectSocket, SD_SEND);
         if (resultado==SOCKET_ERROR){
             cout<<"Falha no desligamento, erro: "<< WSAGetLastError() <<endl;
             closesocket(ConnectSocket);
             WSACleanup();
             return 1;
-        }
+        }*/
 
         // Receber informações até a conexão ser encerrada
         do {
@@ -153,6 +153,16 @@ int __cdecl main(int argc, char **argv){
 
     }
     
+    //Desligando conexões após a mensagem inicial ser inserida
+    int resultado;
+    resultado = shutdown(ConnectSocket, SD_SEND);
+    if (resultado==SOCKET_ERROR){
+        cout<<"Falha no desligamento, erro: "<< WSAGetLastError() <<endl;
+        closesocket(ConnectSocket);
+        WSACleanup();
+        return 1;
+    }
+
     //Liberando memória
     closesocket(ConnectSocket);
     WSACleanup();
