@@ -29,7 +29,6 @@ int sender(SOCKET cliente){
 
     while (true){
         string message;
-        //std::cout << "Digite a mensagem: ";
         getline(cin, message);
         const int n = message.length();
         char sendMes[n+1];
@@ -91,10 +90,7 @@ int __cdecl main(int argc, char **argv) {
     struct addrinfo *result = NULL,
                     *ptr = NULL,
                     hints;
-    const char *sendbuf = "Enviei esta mensagem de um cliente";
-    char recvbuf[DEFAULT_BUFLEN];
     int iResult;
-    int recvbuflen = DEFAULT_BUFLEN;
     
     // Validate the parameters
     if (argc != 2) {
