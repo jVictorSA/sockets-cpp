@@ -22,11 +22,10 @@ int loop_mensagens(SOCKET cliente, SOCKET demaisClientes[], int numCliente){
     while (true){
         resultado = recv(cliente, bufferReceb, tamBuffReceb, 0);
         std::cout << bufferReceb << "\n";
-        bufferReceb[resultado] = '\0';
-
+        
         if(resultado > 0){
             std::cout << "Bytes recebidos: " << resultado << "\n";
-            std::cout << "Msg recebida no server: "<<bufferReceb <<std::endl;
+
             for(int i = 0; i < MAX_CLIENTS; i++){
                 if( demaisClientes[i] != INVALID_SOCKET && demaisClientes[i] != cliente){
                     resultEnvio = send(demaisClientes[i], bufferReceb, resultado, 0);
@@ -41,11 +40,6 @@ int loop_mensagens(SOCKET cliente, SOCKET demaisClientes[], int numCliente){
                     std::cout << "Bytes enviados: " << resultEnvio << "\n";
                 }else if(resultado == 0){
                     std::cout << "Encerrando conexao... \n";
-                }else{
-                    std::cout << "recv falhou: " << WSAGetLastError() << "\n";
-                    //closesocket(cliente);
-                    //WSACleanup();
-                    //return 1;
                 }
             }
         }
@@ -123,28 +117,28 @@ int main() {
 
     while (true){
 
-        //4-Ouvir na porta do socket esperand por um cliente.
-        //if(clientes[4] != INVALID_SOCKET) //tratamento de erro máximo de clientes
-        if(listen(listenSocket, SOMAXCONN) == SOCKET_ERROR){
-            std::cout << "Erro ao escutar a porta: " << WSAGetLastError() << "\n";
-            closesocket(listenSocket);
-            WSACleanup();
-            return 1;
-        }
-        
-        //5-Aceitar a conexão de um cliente.
-        clientes[cnt_cliente] = accept(listenSocket, NULL, NULL); 
-        if(clientes[cnt_cliente] == INVALID_SOCKET){
-            std::cout << "falha no aceite da conexao: " << WSAGetLastError() << "\n";
-            closesocket(listenSocket);
-            WSACleanup();
-            return 1;
-        }else{
-            //loop_mensagens(clientes[cnt_cliente], clientes, cnt_cliente);
-            clientes_threads[cnt_cliente] = std::thread(loop_mensagens, clientes[cnt_cliente], clientes, cnt_cliente);
-            std::cout << "Cliente " << cnt_cliente << " conectado \n";
-            cnt_cliente++;
-        }
+    //4-Ouvir na porta do socket esperand por um cliente.
+    //if(clientes[4] != INVALID_SOCKET) //tratamento de erro máximo de clientes
+    if(listen(listenSocket, SOMAXCONN) == SOCKET_ERROR){
+        std::cout << "Erro ao escutar a porta: " << WSAGetLastError() << "\n";
+        closesocket(listenSocket);
+        WSACleanup();
+        return 1;
+    }
+    
+    //5-Aceitar a conexão de um cliente.
+    clientes[cnt_cliente] = accept(listenSocket, NULL, NULL); 
+    if(clientes[cnt_cliente] == INVALID_SOCKET){
+        std::cout << "falha no aceite da conexao: " << WSAGetLastError() << "\n";
+        closesocket(listenSocket);
+        WSACleanup();
+        return 1;
+    }else{
+        //loop_mensagens(clientes[cnt_cliente], clientes, cnt_cliente);
+        clientes_threads[cnt_cliente] = std::thread(loop_mensagens, clientes[cnt_cliente], clientes, cnt_cliente);
+        std::cout << "Cliente " << cnt_cliente << " conectado \n";
+        cnt_cliente++;
+    }
     }
     
     //6-Receber e enviar dados.
@@ -172,6 +166,8 @@ int main() {
         closesocket(clientes[i]);
     }
     WSACleanup();
-    
+
+    std::cout << "Funcionou! \n";
+
   return 0;
 }

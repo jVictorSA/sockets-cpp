@@ -21,67 +21,32 @@ using namespace std;
 
 #define DEFAULT_BUFLEN 4096
 #define DEFAULT_PORT "27015"
-#define DEBUG if(0)
 
-
-void InputNameInMessage(char *msg_with_name, char *name, char *msg){
-    int len_name = strlen(name);
-    int len_msg = strlen(msg);
-    for (int i=0; i<len_name; ++i){
-        msg_with_name[i] = name[i];
-    }
-    msg_with_name[len_name] = ':';
-    msg_with_name[len_name+1] = ' ';
-    int acc = 0;
-    int j = len_name+2;
-    for (j=len_name+2; j<len_name+2+len_msg; j++){
-        msg_with_name[j] = msg[acc];
-        acc+=1;
-    }
-    msg_with_name[j] = '\0';
-
-    //return msg_with_name;
-}
-
-
-int sender(SOCKET cliente, char *name){
-    DEBUG{char recvbuf[DEFAULT_BUFLEN];}
-    int iResult;
-    DEBUG{int recvbuflen = DEFAULT_BUFLEN;}
+int sender(SOCKET cliente){
+    char recvbuf[DEFAULT_BUFLEN];
+    int sentRes;
+    int recvbuflen = DEFAULT_BUFLEN;
 
     while (true){
-        int opt = 0;
-        cout<<"Quer dizer algo? Aperte 1. Desconencte-se apertando 0.\n";
-        //cin>>opt;
-        scanf("%d", &opt);
-        getchar();
-        DEBUG{cout << "opt:"<<opt<<endl;}
-        if (opt==1){
             string message;
-            cout << "Pode digitar: " << endl;
+            std::cout << "Digite a mensagem:";
             getline(cin, message);
-
-            DEBUG{const int n = message.length();}
-            char sendMes[DEFAULT_BUFLEN];//char sendMes[n+1];
+            const int n = message.length();
+            char sendMes[n+1];
             strcpy(sendMes, message.c_str());
-            message.clear();
-
-            //Putting name:
-            char sendMes2[DEFAULT_BUFLEN];
-            InputNameInMessage(sendMes2, name, sendMes);
 
             // Send an initial buffer
-            iResult = send(cliente, sendMes2, (int)strlen(sendMes2), 0);
-            DEBUG{std::cout << iResult << "\n";}
+            sentRes = send(cliente, sendMes, (int)strlen(sendMes), 0);
+            std::cout << sentRes << "\n";
 
-            if (iResult == SOCKET_ERROR) {
+            if (sentRes == SOCKET_ERROR) {
                 std::cout << "send failed with error: " << WSAGetLastError() << "\n";
                 closesocket(cliente);
                 WSACleanup();
                 return 1;
             }
 
-            DEBUG{std::cout << "Bytes Sent: " << iResult << "\n";}
+            std::cout << "Bytes Sent: " << sentRes << "\n";
             //std::cout << sendMes << "\n";
 
             // shutdown the connection since no more data will be sent
@@ -93,7 +58,7 @@ int sender(SOCKET cliente, char *name){
                 return 1;
             }*/
 
-        }
+        
     }
 
     return 0;
@@ -103,25 +68,20 @@ int receiver(SOCKET cliente){
     while(true){
 
     char recvbuf[DEFAULT_BUFLEN];
-    int iResult;
+    int recvRes;
     int recvbuflen = DEFAULT_BUFLEN;
     
-    iResult = recv(cliente, recvbuf, recvbuflen, 0);
+    recvRes = recv(cliente, recvbuf, recvbuflen, 0);
         std::cout << recvbuf << "\n";
-        if ( iResult > 0 ){
-            DEBUG{std::cout << "Bytes received: " << iResult << "\n";}
-            std::cout << recvbuf << "\n";
+        if ( recvRes > 0 ){
+            std::cout << "Bytes received: " << recvRes << "\n";
+            std::cout << "Msg recebida" << recvbuf << "\n";
         }
-        else if ( iResult == 0 ){
+        else if ( recvRes == 0 ){
             std::cout << "Connection closed\n";
             continue;
         }
-        else{
-            std::cout << "recv failed with error: " << WSAGetLastError() << "\n";
-            closesocket(cliente);
-            WSACleanup();
-            return 1;
-        }
+        
     }
 
     return 0;
@@ -134,16 +94,11 @@ int __cdecl main(int argc, char **argv) {
     struct addrinfo *result = NULL,
                     *ptr = NULL,
                     hints;
-    //const char *sendbuf = "Enviei esta mensagem de um cliente";
-    //char recvbuf[DEFAULT_BUFLEN];
+    const char *sendbuf = "Enviei esta mensagem de um cliente";
+    char recvbuf[DEFAULT_BUFLEN];
     int iResult;
-    //int recvbuflen = DEFAULT_BUFLEN;
+    int recvbuflen = DEFAULT_BUFLEN;
     
-    //Nick-name of chat:
-    char nick_name[DEFAULT_BUFLEN];
-    std::cout<<"Diga seu nome para entrar no Chat Livre:\n";
-    cin.getline(nick_name, DEFAULT_BUFLEN);
-
     // Validate the parameters
     if (argc != 2) {
         std::cout << "usage: " << argv[0] << "server-name\n";
@@ -200,27 +155,17 @@ int __cdecl main(int argc, char **argv) {
         return 1;
     }
 
-    thread sendThread(sender, ConnectSocket, nick_name);
+    thread sendThread(sender, ConnectSocket);
     thread recThread(receiver, ConnectSocket);
 
     // Receive until the peer closes the connection
     
     sendThread.join();
-    recThread.join();
-
-    // shutdown the connection since no more data will be sent
-    iResult = shutdown(ConnectSocket, SD_SEND);
-    if (iResult == SOCKET_ERROR) {
-        std::cout << "shutdown failed with error: " << WSAGetLastError() << "\n";
-        closesocket(ConnectSocket);
-        WSACleanup();
-        return 1;
-    }
+    recThread.join();    
 
     // cleanup
     closesocket(ConnectSocket);
     WSACleanup();
-    std::cout << "Bye!\n";
 
     return 0;
 }
