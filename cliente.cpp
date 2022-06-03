@@ -28,25 +28,24 @@ int sender(SOCKET cliente){
     int recvbuflen = DEFAULT_BUFLEN;
 
     while (true){
-            string message;
-            std::cout << "Digite a mensagem:";
-            getline(cin, message);
-            const int n = message.length();
-            char sendMes[n+1];
-            strcpy(sendMes, message.c_str());
+        string message;
+        //std::cout << "Digite a mensagem: ";
+        getline(cin, message);
+        const int n = message.length();
+        char sendMes[n+1];
+        strcpy(sendMes, message.c_str());
 
-            // Send an initial buffer
-            sentRes = send(cliente, sendMes, (int)strlen(sendMes), 0);
-            std::cout << sentRes << "\n";
+        // Send an initial buffer
+        sentRes = send(cliente, sendMes, (int)strlen(sendMes), 0);
 
-            if (sentRes == SOCKET_ERROR) {
-                std::cout << "send failed with error: " << WSAGetLastError() << "\n";
-                closesocket(cliente);
-                WSACleanup();
-                return 1;
-            }
+        if (sentRes == SOCKET_ERROR) {
+            std::cout << "send failed with error: " << WSAGetLastError() << "\n";
+            closesocket(cliente);
+            WSACleanup();
+            return 1;
+        }
 
-            std::cout << "Bytes Sent: " << sentRes << "\n";
+        std::cout << "Bytes Sent: " << sentRes << "\n";
             //std::cout << sendMes << "\n";
 
             // shutdown the connection since no more data will be sent
@@ -57,31 +56,29 @@ int sender(SOCKET cliente){
                 WSACleanup();
                 return 1;
             }*/
-
-        
     }
 
     return 0;
 }
 
 int receiver(SOCKET cliente){
-    while(true){
-
+        
     char recvbuf[DEFAULT_BUFLEN];
     int recvRes;
     int recvbuflen = DEFAULT_BUFLEN;
-    
-    recvRes = recv(cliente, recvbuf, recvbuflen, 0);
-        std::cout << recvbuf << "\n";
+
+    while(true){
+        memset(recvbuf, 0, DEFAULT_BUFLEN);
+        
+        recvRes = recv(cliente, recvbuf, recvbuflen, 0);
         if ( recvRes > 0 ){
-            std::cout << "Bytes received: " << recvRes << "\n";
-            std::cout << "Msg recebida" << recvbuf << "\n";
+            std::cout << "Bytes recebidos: " << recvRes << "\n";
+            std::cout << "Msg recebida: " << recvbuf << "\n\n";
         }
         else if ( recvRes == 0 ){
             std::cout << "Connection closed\n";
             continue;
         }
-        
     }
 
     return 0;

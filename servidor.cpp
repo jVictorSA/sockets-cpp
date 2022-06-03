@@ -20,14 +20,14 @@ int loop_mensagens(SOCKET cliente, SOCKET demaisClientes[], int numCliente){
     int resultado;
     //Receber até que o cliente encerre a conexão
     while (true){
+        memset(bufferReceb, 0, DEFAULT_BUFLEN);
         resultado = recv(cliente, bufferReceb, tamBuffReceb, 0);
-        std::cout << bufferReceb << "\n";
         
         if(resultado > 0){
             std::cout << "Bytes recebidos: " << resultado << "\n";
 
             for(int i = 0; i < MAX_CLIENTS; i++){
-                if( demaisClientes[i] != INVALID_SOCKET && demaisClientes[i] != cliente){
+                if (demaisClientes[i] != INVALID_SOCKET && demaisClientes[i] != cliente){
                     resultEnvio = send(demaisClientes[i], bufferReceb, resultado, 0);
                     std::cout << bufferReceb << "\n";
                     
@@ -78,6 +78,7 @@ int main() {
     }
 
     //Criação do Socket do servidor
+    std::cout << "Iniciando servidor...\n\n";
     SOCKET listenSocket = INVALID_SOCKET;
 
     listenSocket = socket(result -> ai_family,
@@ -92,6 +93,7 @@ int main() {
     }
 
     //3-Conectar o socket.
+    std::cout << "Configurando servidor...\n\n";
     resultado = bind(listenSocket, result -> ai_addr, (int)result -> ai_addrlen);
     if(resultado == SOCKET_ERROR){
         std::cout << "Erro na conexao do socket: " << WSAGetLastError() << "\n";
@@ -114,6 +116,9 @@ int main() {
     for(int i = 0; i < MAX_CLIENTS; i++){
         clientes[i] = INVALID_SOCKET;
     }
+
+
+    std::cout << "Servidor rodando!\n\n";
 
     while (true){
 
