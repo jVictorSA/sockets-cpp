@@ -54,26 +54,32 @@ int sender(SOCKET cliente, char *name, int *state){
     int recvbuflen = DEFAULT_BUFLEN;
 
     while (true){
-        string message;
-        cout << "Diga algo se quiser ou digite 1 para sair:"<<endl;
-        getline(cin, message);
+        //string message;
+        cout << "Diga algo se quiser ou digite \"exit\" para sair:"<<endl;
+        //getline(cin, message);
+        //cin.getline(message, DEFAULT_BUFLEN);
+        
         //const int n = message.length();
         char sendMes[DEFAULT_BUFLEN];
 
-        DEBUG{cout<<"first:"<<message[0]<<endl;}
-        if(message[0]=='1'){*state=2; return 2;}
+        scanf("%[^\n]s", sendMes);
+        DEBUG{cout<<"mes_scan:"<<sendMes<<endl;}
+
+        DEBUG{cout<<"len:"<<strlen(sendMes)<<endl;}
+        if((sendMes[0]=='e')&&(sendMes[1]=='x')&&(sendMes[2]=='i')&&(sendMes[3]=='t')&&(strlen(sendMes)==4))
+        {*state=2; return 2;}
 
         DEBUG{cout << "STEP 5"<<endl;}
-        strcpy(sendMes, message.c_str());
+        //strcpy(sendMes, message.c_str());
         DEBUG{cout << "sendMes:"<<sendMes<<endl;}  
         DEBUG{cout << "STEP 6"<<endl;}
         //Putting user name:
         char sendMes2[DEFAULT_BUFLEN];
         JoinName(sendMes2, sendMes, name);
-        DEBUG{cout << "STEP 7"<<endl;}  
+        DEBUG{cout << "STEP 7"<<endl;}
         
         // Send an initial buffer
-        sentRes = send(cliente, sendMes2, (int)strlen(sendMes), 0);
+        sentRes = send(cliente, sendMes2, (int)strlen(sendMes2), 0);
 
         if (sentRes == SOCKET_ERROR) {
             std::cout << "send failed with error: " << WSAGetLastError() << "\n";
@@ -82,7 +88,7 @@ int sender(SOCKET cliente, char *name, int *state){
             return 1;
         }
 
-        std::cout << "Bytes Sent: " << sentRes << "\n";
+        DEBUG{std::cout << "Bytes Sent: " << sentRes << "\n";}
             //std::cout << sendMes << "\n";
 
             // shutdown the connection since no more data will be sent
@@ -108,14 +114,15 @@ int receiver(SOCKET cliente, int *state){
         memset(recvbuf, 0, DEFAULT_BUFLEN);
         
         recvRes = recv(cliente, recvbuf, recvbuflen, 0);
-        DEBUG{cout << "recv:"<<recvRes<<endl;}
+        DEBUG{cout << "recv:"<<recvRes<<"state:"<<*state<<endl;}
         if ( recvRes > 0 ){
             DEBUG{std::cout << "Bytes recebidos: " << recvRes << "\n";}
             std::cout << endl<<"Msg recebida: " << recvbuf << "\n\n";
         }
-        else if ( recvRes == 0 ){
+        else if ( *state == 2 ){
             std::cout << "Connection closed\n";
-            if (*state==2){return 2;}
+            //if (*state==2){return 2;}
+            return 2;
             //continue; //It's continue step the recvRes update
         }
     }
