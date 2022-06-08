@@ -11,7 +11,6 @@
 #include <cstring>
 #include <thread>
 
-
 // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
@@ -21,16 +20,15 @@ using namespace std;
 
 #define DEFAULT_BUFLEN 4096
 #define DEFAULT_PORT "27015"
-#define DEBUG if(1)
 
-void JoinName(char *destination, char msg[], char *name){
+void JoinName(char *destination, char msg[], string name){
     int len_msg = strlen(msg);
-    int len_name = strlen(name);
+    int len_name = name.length();
     //DEBUG{cout<<"dest:"<<destination<<", msg:"<<msg<<", name:"<<name<<endl;}
     int i = 0;
     for (i=0; i<len_name;++i){
         destination[i] = name[i];
-        DEBUG{cout<<"i:"<<i<<destination<<endl;}
+        //DEBUG{cout<<"i:"<<i<<destination<<endl;}
     }
     
     destination[i] = ':';
@@ -45,40 +43,36 @@ void JoinName(char *destination, char msg[], char *name){
         acc+=1;
     }
     destination[j+1] = '\0';
-
 }
 
-int sender(SOCKET cliente, char *name, int *state){
+int sender(SOCKET cliente){
     char recvbuf[DEFAULT_BUFLEN];
     int sentRes;
     int recvbuflen = DEFAULT_BUFLEN;
+    string nome;
+
+    cout << "Digite seu nome: ";
+    getline(cin, nome);
+    cout << nome << ", para sair digite \"exit()\"\n";
 
     while (true){
-        //string message;
-        cout << "Diga algo se quiser ou digite \"exit\" para sair:"<<endl;
-        //getline(cin, message);
-        //cin.getline(message, DEFAULT_BUFLEN);
+        string message;
+        getline(cin, message);
+        const int n = message.length();
+        char sendMes[n+1];
+        strcpy(sendMes, message.c_str());
+
+        //Checar se o usuário deseja sair do programa
+        if(message.compare("exit()") == 0){
+            sentRes = send(cliente, sendMes, (int)strlen(sendMes), 0);
+            return 0;
+        }
         
-        //const int n = message.length();
-        char sendMes[DEFAULT_BUFLEN];
-
-        scanf("%[^\n]s", sendMes);
-        DEBUG{cout<<"mes_scan:"<<sendMes<<endl;}
-
-        DEBUG{cout<<"len:"<<strlen(sendMes)<<endl;}
-        if((sendMes[0]=='e')&&(sendMes[1]=='x')&&(sendMes[2]=='i')&&(sendMes[3]=='t')&&(strlen(sendMes)==4))
-        {*state=2; return 2;}
-
-        DEBUG{cout << "STEP 5"<<endl;}
-        //strcpy(sendMes, message.c_str());
-        DEBUG{cout << "sendMes:"<<sendMes<<endl;}  
-        DEBUG{cout << "STEP 6"<<endl;}
-        //Putting user name:
         char sendMes2[DEFAULT_BUFLEN];
-        JoinName(sendMes2, sendMes, name);
-        DEBUG{cout << "STEP 7"<<endl;}
-        
-        // Send an initial buffer
+
+        JoinName(sendMes2, sendMes, nome);
+
+        //Enviar mensagens
         sentRes = send(cliente, sendMes2, (int)strlen(sendMes2), 0);
 
         if (sentRes == SOCKET_ERROR) {
@@ -87,25 +81,12 @@ int sender(SOCKET cliente, char *name, int *state){
             WSACleanup();
             return 1;
         }
-
-        DEBUG{std::cout << "Bytes Sent: " << sentRes << "\n";}
-            //std::cout << sendMes << "\n";
-
-            // shutdown the connection since no more data will be sent
-            /*iResult = shutdown(cliente, SD_SEND);
-            if (iResult == SOCKET_ERROR) {
-                std::cout << "shutdown failed with error: " << WSAGetLastError() << "\n";
-                closesocket(cliente);
-                WSACleanup();
-                return 1;
-            }*/
     }
 
     return 0;
 }
 
-int receiver(SOCKET cliente, int *state){
-        
+int receiver(SOCKET cliente){     
     char recvbuf[DEFAULT_BUFLEN];
     int recvRes;
     int recvbuflen = DEFAULT_BUFLEN;
@@ -114,16 +95,19 @@ int receiver(SOCKET cliente, int *state){
         memset(recvbuf, 0, DEFAULT_BUFLEN);
         
         recvRes = recv(cliente, recvbuf, recvbuflen, 0);
-        DEBUG{cout << "recv:"<<recvRes<<"state:"<<*state<<endl;}
         if ( recvRes > 0 ){
-            DEBUG{std::cout << "Bytes recebidos: " << recvRes << "\n";}
-            std::cout << endl<<"Msg recebida: " << recvbuf << "\n\n";
+            std::string s(recvbuf);
+
+                //checar se é para encerrar a thread
+                if(s.compare("exit()") == 0){
+                    return 0;
+                }
+
+            std::cout << recvbuf << "\n\n";
         }
-        else if ( *state == 2 ){
-            std::cout << "Connection closed\n";
-            //if (*state==2){return 2;}
-            return 2;
-            //continue; //It's continue step the recvRes update
+        else if ( recvRes == 0 ){
+            std::cout << "Conexão encerrada\n";
+            continue;
         }
     }
 
@@ -131,28 +115,21 @@ int receiver(SOCKET cliente, int *state){
 }
 
 
-int __cdecl main(int argc, char **argv) {
+int main(int argc, char **argv) {
     WSADATA wsaData;
     SOCKET ConnectSocket = INVALID_SOCKET;
     struct addrinfo *result = NULL,
                     *ptr = NULL,
                     hints;
     int iResult;
-
-    //User name:
-    char name[DEFAULT_BUFLEN];
-    cout << "Digite seu nome:"<<endl;
-    cin.getline(name, DEFAULT_BUFLEN);
-    //getchar();
-    DEBUG{cout << "STEP 4"<<endl;}
-
-    // Validate the parameters
+    
+    //Validando parâmetros de entrada
     if (argc != 2) {
         std::cout << "usage: " << argv[0] << "server-name\n";
         return 1;
     }
 
-    // Initialize Winsock
+    //Inicializando o Winsock
     iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
     if (iResult != 0) {
         std::cout << "WSAStartup failed with error: " << iResult << "\n";
@@ -172,10 +149,10 @@ int __cdecl main(int argc, char **argv) {
         return 1;
     }
 
-    // Attempt to connect to an address until one succeeds
+    //Tentar conectar à um IP, até que seja aceito
     for(ptr=result; ptr != NULL ;ptr=ptr->ai_next) {
 
-        // Create a SOCKET for connecting to server
+        //Fazer o bind do socket
         ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, 
             ptr->ai_protocol);
         if (ConnectSocket == INVALID_SOCKET) {
@@ -184,7 +161,7 @@ int __cdecl main(int argc, char **argv) {
             return 1;
         }
 
-        // Connect to server.
+        //Conectar ao servidor
         iResult = connect( ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
         if (iResult == SOCKET_ERROR) {
             closesocket(ConnectSocket);
@@ -201,30 +178,19 @@ int __cdecl main(int argc, char **argv) {
         WSACleanup();
         return 1;
     }
+    
+    thread sendThread(sender, ConnectSocket);
+    thread recThread(receiver, ConnectSocket);
 
-    DEBUG{cout << "STEP 1 - initial of threads"<<endl;}
-    int *state = 0;
-    thread sendThread(sender, ConnectSocket, name, state);
-    thread recThread(receiver, ConnectSocket, state);
-
-    DEBUG{cout << "STEP 2 - into in threads, state:"<<state<<endl;}
-    // Receive until the peer closes the connection
-    if (*state==2){    
-        // cleanup
-        closesocket(ConnectSocket);
-        WSACleanup();
-
-        return 0;
-    }
-
+    //Esperar o cliente encerrar a conexão, ou algum erro no servidor ocorrer
     sendThread.join();
     recThread.join();    
     
-    DEBUG{cout << "STEP 3 - Dead of program"<<endl;}
-
-    // cleanup
+    //Limpeza do socket
     closesocket(ConnectSocket);
     WSACleanup();
+
+    cout << "\n Obrigado por usar o nosso chat!!\n Volte Sempre!";
 
     return 0;
 }

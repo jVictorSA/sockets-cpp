@@ -3,6 +3,7 @@
 #include <ws2tcpip.h>
 #include <iostream>
 #include <thread>
+#include <string>
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -18,11 +19,21 @@ int loop_mensagens(SOCKET cliente, SOCKET demaisClientes[], int numCliente){
     int resultEnvio;
     int tamBuffReceb = DEFAULT_BUFLEN;
     int resultado;
+
     //Receber até que o cliente encerre a conexão
     while (true){
         memset(bufferReceb, 0, DEFAULT_BUFLEN);
         resultado = recv(cliente, bufferReceb, tamBuffReceb, 0);
+            
+        std::string s(bufferReceb);
         
+        //Checar se um usuário deseja sair do chat
+        if(s.compare("exit()") == 0){
+            resultEnvio = send(cliente, bufferReceb, resultado, 0);
+            std::cout << bufferReceb << "\n";
+            continue;
+        }
+
         if(resultado > 0){
             std::cout << "Bytes recebidos: " << resultado << "\n";
 
@@ -123,7 +134,13 @@ int main() {
     while (true){
 
     //4-Ouvir na porta do socket esperand por um cliente.
-    //if(clientes[4] != INVALID_SOCKET) //tratamento de erro máximo de clientes
+     
+     //tratamento de erro máximo de clientes
+    if(clientes[4] != INVALID_SOCKET){
+        std::cout << "servidor Cheio!\n";
+        break;
+    }
+    
     if(listen(listenSocket, SOMAXCONN) == SOCKET_ERROR){
         std::cout << "Erro ao escutar a porta: " << WSAGetLastError() << "\n";
         closesocket(listenSocket);
