@@ -11,5 +11,12 @@ Para compilar código do cliente:
 g++ cliente.cpp -lWs2_32 -lMswsock -lAdvApi32 -o cliente.exe -Wall
 ```
 
-Para executar o projeto, abra dois terminais e em um terminal execute o servidor (deve ser executado sempre antes do cliente) e no outro terminal execute o cliente
+Para executar o projeto, abra dois terminais e em um terminal execute o servidor (deve ser executado sempre antes do cliente) e no outro terminal execute o cliente. É possível fazer esta execução com os seguintes comandos no terminal:
 
+'''
+Para o servidor: servidor.exe localhost
+'''
+
+'''
+Para o cliente: cliente.exe <IP do servidor ou "localhost" se for na mesma máquina>
+'''
