@@ -59,7 +59,7 @@ int loop_mensagens(SOCKET cliente, SOCKET demaisClientes[], int numCliente){
 }
 
 
-int main() {
+int main(int argc, char **argv) {
 
     //1-Inicializar o Winsock.
     WSADATA wsaData;
@@ -81,7 +81,7 @@ int main() {
     hints.ai_protocol = IPPROTO_TCP;    //Explicita o uso do protocolo TCP
     hints.ai_flags = AI_PASSIVE;
 
-    resultado = getaddrinfo(NULL, PORTA, &hints, &result);
+    resultado = getaddrinfo(argv[1], PORTA, &hints, &result);
     if(resultado != 0){
         std::cout << "Erro na criacao do socket! \n";
         WSACleanup();
