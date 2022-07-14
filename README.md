@@ -27,5 +27,5 @@ servidor.exe 127.0.0.1 (ou qualquer que seja seu endereço de IPv4)
 
 Para o cliente:  
 cliente.exe <IPv4 onde o servidor está rodando> ou  
-cliente.exe localhost
+cliente.exe localhost (caso o servidor esteja rodando no localhost)
 ````
