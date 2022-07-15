@@ -16,8 +16,11 @@ ou
 clang++ cliente.cpp -lWs2_32 -lMswsock -lAdvApi32 -o cliente.exe
 ```
 
-Para executar o projeto, abra dois terminais e em um terminal execute o servidor (SEMPRE deve ser executado sempre antes do cliente) passando o seu endereço de IPv4 como argumento e no outro terminal execute o cliente passando seu endereço de IPv4 como argumento.  
-É possível fazer esta execução da seguinte forma no terminal:
+Para executar o projeto, será necessário abrir dois terminais: um para o servidor e outro para o cliente.  
+Ademais o servidor deve **SEMPRE** ser executado antes do cliente.  
+Para executar o servidor, passe o seu endereço de IPv4 como argumento  
+Para executar o cliente, passe o endereço de IPv4 em que o servidor está rodando como argumento.  
+Exemplos de como executar ambos programas no terminal são mostrados a seguir:
 
 ````
 Para o servidor:  
@@ -26,6 +29,7 @@ ou
 servidor.exe 127.0.0.1 (ou qualquer que seja seu endereço de IPv4)  
 
 Para o cliente:  
-cliente.exe <IPv4 onde o servidor está rodando> ou  
+cliente.exe <IPv4 onde o servidor está rodando>  
+ou  
 cliente.exe localhost (caso o servidor esteja rodando no localhost)
 ````
